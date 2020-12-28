@@ -36,7 +36,7 @@ class ConfigManager(object):
         path = os.path.join(cwd, PROJECT_NAME_SHORT)
         if not os.path.isdir(path):
             os.mkdir(path)
-        self.config_path = os.path.join(path, '{}.ini'.format(PROJECT_NAME_SHORT))
+        self.config_path = os.path.join(path, F'{PROJECT_NAME_SHORT}.ini')
         self.config = configparser.ConfigParser()
 
         try:
@@ -61,7 +61,7 @@ class ConfigManager(object):
     def add_property(name, tag, prop_type, default_value, min_value=None, max_value=None):
         if not isinstance(tag, str):
             tag = tag.value
-        setattr(ConfigManager, '_default_{}'.format(name), default_value)
+        setattr(ConfigManager, F'_default_{name}', default_value)
 
         def setter_method(this, value):
             if issubclass(prop_type, int):
@@ -72,10 +72,10 @@ class ConfigManager(object):
                     if value > max_value:
                         value = max_value
             this.config.set(tag, name, str(value))
-            setattr(this, '_{}'.format(name), value)
+            setattr(this, F'_{name}', value)
             this.write_config()
-        getter_method = property(lambda x: getattr(x, '_{}'.format(name)), setter_method)
-        setattr(ConfigManager, '_{}'.format(name), default_value)
+        getter_method = property(lambda x: getattr(x, F'_{name}'), setter_method)
+        setattr(ConfigManager, F'_{name}', default_value)
         setattr(ConfigManager, name, getter_method)
 
     def read_config(self):

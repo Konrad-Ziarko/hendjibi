@@ -144,7 +144,7 @@ class GUI(QMainWindow):
         dark_mode.setChecked(self.config.dark_mode)
 
         new_entry = QAction(_('Add new entry'), self)
-        new_entry.triggered.connect(self.add_new_entry)  # TODO
+        new_entry.triggered.connect(self.add_new_entry)
         entry_menu.addAction(new_entry)
 
         filter_menu.addSection('Entry type')

@@ -18,9 +18,9 @@ class DataManager(object):
                     data = the_file.read()
                 self.all_entries = self.load(data)
             except EOFError as e:
-                logger.error(_('Failed to load entries data, runtime error is: {}').format(e))
+                logger.error(_(F'Failed to load entries data, runtime error is: {e}'))
                 logger.info(_('Created empty database, previous file renamed for safety'))
-                os.rename(self.file_path, '{}_{}'.format(self.file_path, datetime.now().strftime('%Y-%m-%d_%H-%M-%S')))
+                os.rename(self.file_path, F'{self.file_path}_{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}')
                 with open(self.file_path, 'wb') as f:
                     f.write(self.dump())
             except Exception as e:
@@ -33,7 +33,7 @@ class DataManager(object):
     def save_dump(self):
         dump_data = self.dump()
         try:
-            os.rename(self.file_path, '{}.bak'.format(self.file_path))
+            os.rename(self.file_path, F'{self.file_path}.bak')
         except:
             pass
         with open(self.file_path, 'wb') as f:

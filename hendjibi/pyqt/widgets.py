@@ -20,7 +20,7 @@ class IconButton(QToolButton):
         self.setText(repr(data_entry))
 
     def mouseDoubleClickEvent(self, a0) -> None:
-        print("double pressed [{}]".format(repr(self.data_entry)))
+        print(F"double pressed [{repr(self.data_entry)}]")
 
 
 class ListWidget(QListWidget):
