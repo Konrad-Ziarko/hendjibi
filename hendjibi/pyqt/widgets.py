@@ -42,18 +42,29 @@ class MainWidget(QWidget):
 
     def add_entry(self, entry):
         if entry.entry_type.value not in self.group_boxes:
-            g = QGroupBox(entry.entry_type.value)
+            entry_type_box = QGroupBox(entry.entry_type.value)
             layout = FlowLayout(margin=10)
-            g.setLayout(layout)
-            self.group_boxes[entry.entry_type.value] = (g, layout)
-            self.container_layout.addWidget(g)
+            entry_type_box.setLayout(layout)
+            self.group_boxes[entry.entry_type.value] = (entry_type_box, layout, dict())
+            progress_status_box = QGroupBox(entry.progress_status.value)
+            progress_layout = FlowLayout(margin=10)
+            progress_status_box.setLayout(progress_layout)
+            layout.addWidget(progress_status_box)
+            self.group_boxes[entry.entry_type.value][2][entry.progress_status.value] = (progress_status_box, progress_layout)
+            self.container_layout.addWidget(entry_type_box)
+        if entry.progress_status.value not in self.group_boxes[entry.entry_type.value][2]:
+            progress_status_box = QGroupBox(entry.progress_status.value)
+            progress_layout = FlowLayout(margin=10)
+            progress_status_box.setLayout(progress_layout)
+            self.group_boxes[entry.entry_type.value][1].addWidget(progress_status_box)
+            self.group_boxes[entry.entry_type.value][2][entry.progress_status.value] = (progress_status_box, progress_layout)
         button = IconButton(entry, self)
         button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
         qp = QPixmap()
         qp.loadFromData(entry.cover_image)
         button.setIcon(QIcon(qp))
         self.change_cover_size(None, button)
-        self.group_boxes[entry.entry_type.value][1].addWidget(button)
+        self.group_boxes[entry.entry_type.value][2][entry.progress_status.value][1].addWidget(button)
 
     def load_with_data(self):
         for i in reversed(range(self.main_layout.count())):
@@ -107,7 +118,14 @@ class MainWidget(QWidget):
                 group.hide()
 
     def filter_status_changed(self, entry_name, is_checked):
-        pass
+        for entry_type in EntryType:
+            if entry_type.value in self.group_boxes:
+                if entry_name in self.group_boxes[entry_type.value][2]:
+                    group = self.group_boxes[entry_type.value][2][entry_name][0]
+                    if is_checked is True:
+                        group.show()
+                    else:
+                        group.hide()
 
     def change_slider_action(self, on_release=True):
         if on_release is True:
@@ -148,10 +166,12 @@ class MainWidget(QWidget):
             self._resize_object(obj, icon_max_w_h)
         else:
             for k, v in self.group_boxes.items():
-                group_box, flow_layout = v
-                for o in group_box.children():
-                    if isinstance(o, IconButton):
-                        self._resize_object(o, icon_max_w_h)
+                group_box, flow_layout, inner_dict = v
+                for k2, v2 in inner_dict.items():
+                    group_box2, flow_layout2 = v2
+                    for o in group_box2.children():
+                        if isinstance(o, IconButton):
+                            self._resize_object(o, icon_max_w_h)
 
 
 class NewEntryDialog(QDialog):
@@ -283,6 +303,8 @@ class NewEntryDialog(QDialog):
         qp = QPixmap()
         qp.loadFromData(self.cover_bytes)
         self.cover.setPixmap(qp)
+        self.cover.setMaximumHeight(500)
+        self.cover.setMaximumWidth(500)
 
     def get_values(self):
         entry_status = self.combo_status.currentData()
