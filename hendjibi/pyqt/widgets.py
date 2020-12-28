@@ -1,6 +1,6 @@
 from PyQt5 import QtCore
 from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtGui import QPaintEvent, QPainter, QIcon, QPixmap, QIntValidator
+from PyQt5.QtGui import QPaintEvent, QPainter, QIcon, QPixmap, QIntValidator, QFont, QColor, QPalette
 from PyQt5.QtWidgets import QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QListWidget, QScrollArea, QGroupBox, \
     QSlider, QDialog, QLabel, QLineEdit, QCheckBox, QComboBox, QPlainTextEdit, QFileDialog, QDateEdit, QToolButton
 
@@ -11,6 +11,37 @@ from hendjibi.pyqt.qt_layout import FlowLayout
 from hendjibi.tools.config import SLIDER_MAX, SLIDER_MIN
 
 logger = get_logger(__name__)
+
+BOLD_FONT = QFont()
+BOLD_FONT.setBold(True)
+ALPHA1 = 15
+ALPHA2 = 50
+
+
+def create_palette(qcolor):
+    p = QPalette()
+    p.setColor(QPalette.Background, qcolor)
+    return p
+
+
+MAP_ENTRY_TYPE_TO_BG_COLOR = {
+    EntryType.ANIME: create_palette(QColor(150, 23, 33, ALPHA1)),
+    EntryType.MANGA: create_palette(QColor(23, 150, 33, ALPHA1)),
+    EntryType.WEB_COMIC: create_palette(QColor(23, 150, 200, ALPHA1)),
+    EntryType.LIGHT_NOVEL: create_palette(QColor(23, 150, 200, ALPHA1)),
+    EntryType.VISUAL_NOVEL: create_palette(QColor(23, 150, 200, ALPHA1)),
+    EntryType.MANHWA: create_palette(QColor(23, 150, 200, ALPHA1)),
+    EntryType.DOJIN: create_palette(QColor(23, 150, 200, ALPHA1)),
+    EntryType.OTHER: create_palette(QColor(23, 150, 200, ALPHA1)),
+    EntryType.UNKNOWN: create_palette(QColor(23, 150, 200, ALPHA1)),
+}
+
+MAP_PROGRESS_STATUS_TO_BG_COLOR = {
+    ProgressStatus.PLANNED: create_palette(QColor(200, 200, 200, ALPHA2)),
+    ProgressStatus.CONSUMING: create_palette(QColor(11, 120, 10, ALPHA2)),
+    ProgressStatus.COMPLETED: create_palette(QColor(11, 11, 120, ALPHA2)),
+    ProgressStatus.DROPPED: create_palette(QColor(250, 250, 33, ALPHA2)),
+}
 
 
 class IconButton(QToolButton):
@@ -43,18 +74,27 @@ class MainWidget(QWidget):
     def add_entry(self, entry):
         if entry.entry_type.value not in self.group_boxes:
             entry_type_box = QGroupBox(entry.entry_type.value)
-            layout = FlowLayout(margin=10)
+            entry_type_box.setFont(BOLD_FONT)
+            entry_type_box.setAutoFillBackground(True)
+            entry_type_box.setPalette(MAP_ENTRY_TYPE_TO_BG_COLOR[entry.entry_type])
+            layout = FlowLayout()
             entry_type_box.setLayout(layout)
             self.group_boxes[entry.entry_type.value] = (entry_type_box, layout, dict())
             progress_status_box = QGroupBox(entry.progress_status.value)
-            progress_layout = FlowLayout(margin=10)
+            progress_status_box.setFont(BOLD_FONT)
+            progress_status_box.setAutoFillBackground(True)
+            progress_status_box.setPalette(MAP_PROGRESS_STATUS_TO_BG_COLOR[entry.progress_status])
+            progress_layout = FlowLayout()
             progress_status_box.setLayout(progress_layout)
             layout.addWidget(progress_status_box)
             self.group_boxes[entry.entry_type.value][2][entry.progress_status.value] = (progress_status_box, progress_layout)
             self.container_layout.addWidget(entry_type_box)
         if entry.progress_status.value not in self.group_boxes[entry.entry_type.value][2]:
             progress_status_box = QGroupBox(entry.progress_status.value)
-            progress_layout = FlowLayout(margin=10)
+            progress_status_box.setFont(BOLD_FONT)
+            progress_status_box.setAutoFillBackground(True)
+            progress_status_box.setPalette(MAP_PROGRESS_STATUS_TO_BG_COLOR[entry.progress_status])
+            progress_layout = FlowLayout()
             progress_status_box.setLayout(progress_layout)
             self.group_boxes[entry.entry_type.value][1].addWidget(progress_status_box)
             self.group_boxes[entry.entry_type.value][2][entry.progress_status.value] = (progress_status_box, progress_layout)
